@@ -36,7 +36,14 @@ def get_gmail_service():
                     f"找不到 {CREDENTIALS_FILE}，請先從 Google Cloud Console 下載 OAuth2 憑證檔案"
                 )
             flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_FILE, SCOPES)
-            creds = flow.run_local_server(port=0)
+            flow.redirect_uri = "urn:ietf:wg:oauth:2.0:oob"
+            auth_url, _ = flow.authorization_url(prompt="consent")
+            print("\n請在瀏覽器開啟以下網址進行授權：")
+            print(f"\n{auth_url}\n")
+            print("授權完成後，將頁面上顯示的授權碼貼到這裡：")
+            code = input("授權碼: ").strip()
+            flow.fetch_token(code=code)
+            creds = flow.credentials
 
         with open(TOKEN_FILE, "w") as token:
             token.write(creds.to_json())
