@@ -7,6 +7,8 @@ from email.mime.multipart import MIMEMultipart
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
+import httplib2
+import google_auth_httplib2
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
@@ -48,7 +50,8 @@ def get_gmail_service():
         with open(TOKEN_FILE, "w") as token:
             token.write(creds.to_json())
 
-    return build("gmail", "v1", credentials=creds)
+    http = google_auth_httplib2.AuthorizedHttp(creds, http=httplib2.Http(disable_ssl_certificate_validation=True))
+    return build("gmail", "v1", http=http)
 
 
 def list_messages(service, user_id="me", max_results=10, query=""):
